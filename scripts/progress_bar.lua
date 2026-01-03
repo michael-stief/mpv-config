@@ -3,6 +3,7 @@ local last_position = 0
 local last_cache_duration = 0
 
 local bar_height = 10
+-- local bar_height = 5
 local progress_color = "&HAAAAAA&"
 local cache_color = "&H333333&"
 local remaining_color = "&H000000&"

@@ -59,4 +59,4 @@ local function on_duration_change(event)
 end
 
 mp.register_event("file-loaded", on_duration_change)
-mp.add_key_binding("y", "toggle-loop", toggle_loop)
+mp.add_key_binding("/", "toggle-loop", toggle_loop)

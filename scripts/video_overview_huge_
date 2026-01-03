@@ -1,0 +1,52 @@
+local loop_active = false
+local seek_interval = 600
+local play_duration = 3
+local duration = 0
+
+local mp = require("mp")
+
+local function loop()
+    if not loop_active then
+        return
+    end
+
+    local current_cache = mp.get_property_number("demuxer-cache-duration") or 0
+    local time_pos = mp.get_property_number("time-pos") or 0
+    local target_time
+
+    if current_cache > play_duration then
+        target_time = time_pos + seek_interval
+        mp.osd_message(string.format("Seeking: +%d seconds", seek_interval), 1)
+    else
+        mp.osd_message("Waiting for cache", 1)
+        mp.add_timeout(1, loop)
+        return
+    end
+
+    if target_time then
+        mp.commandv("seek", target_time, "absolute+keyframes")
+    end
+
+    mp.add_timeout(play_duration, loop)
+end
+
+local function toggle_loop()
+    loop_active = not loop_active
+    if loop_active then
+        loop()
+    end
+end
+
+local function on_duration_change(event)
+    duration = mp.get_property_number("duration")
+
+    if duration and duration > 1 then
+        if duration < seek_interval then
+            seek_interval = duration / 2
+        end
+    end
+end
+
+mp.register_event("file-loaded", on_duration_change)
+mp.add_key_binding("Y", "toggle-loop", toggle_loop)
+
